@@ -10,4 +10,5 @@ This project is a Chainlit application built using LangChain, incorporating feat
 - **Memory-Powered Conversations**: Utilizes LangChain's memory capabilities to maintain chat history and improve conversational context over time.
 
 ## Project Structure
-📁 your-repo/ │ ├── 📄 .gitignore # Specifies untracked files to be ignored by Git ├── 📄 README.md # This README file ├── 📄 pyproject.toml # Poetry configuration file for managing dependencies ├── 📄 chainlit_config.py # Chainlit app configuration file └── 📁 src/ # Source code directory ├── 📄 main.py # Main application logic └── 📁 assets/ # Assets like PDF files and logs (if applicable)
+📁 your-repo/ │ 
+├── 📄 .gitignore # Specifies untracked files to be ignored by Git ├── 📄 README.md # This README file ├── 📄 pyproject.toml # Poetry configuration file for managing dependencies ├── 📄 chainlit_config.py # Chainlit app configuration file └── 📁 src/ # Source code directory ├── 📄 main.py # Main application logic └── 📁 assets/ # Assets like PDF files and logs (if applicable)
