@@ -52,7 +52,7 @@ AZURE_DOCUMENT_INTELLIGENCE_KEY=your_document_intelligence_key
 ### 4. Run the App
 Start the Chainlit app with the following command:
 ```
-poetry run chainlit run src/main.py
+poetry run chainlit run src/4_qa_qery_decomp_hybrid.py
 ```
 
 ### 5. Upload PDFs and Ask Questions
