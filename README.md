@@ -23,5 +23,8 @@ Before setting up the project, make sure you have the following installed:
 If you don't have Poetry installed, you can install it via the command:
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
+```
+
+
 ## Setup
 1. Clone the Repository
