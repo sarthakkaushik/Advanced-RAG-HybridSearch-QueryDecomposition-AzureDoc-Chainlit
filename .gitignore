@@ -1,0 +1,70 @@
+# Python-related ignores
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+*.venv
+.env
+.venv/
+env/
+venv/
+ENV/
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# Ignore virtual environment directories
+.env/
+venv/
+.virtualenv/
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+*.so
+*.dll
+
+# Test results
+.coverage
+.cache/
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# MacOS-specific files
+.DS_Store
+
+# VSCode settings
+.vscode/
+
+# Chainlit specific
+chainlit.db
+
+# LangChain specific (if using Chroma DB)
+chroma_index/
+index_store/
+
+# dotenv file for sensitive information
+.env
+.env.*
+
+# Logs
+*.log
+
+# Ignore specific PDF files if not needed
+*.pdf
+
+# Ignore Python compiled extensions
+*.so
+
+# OS files
+Thumbs.db
