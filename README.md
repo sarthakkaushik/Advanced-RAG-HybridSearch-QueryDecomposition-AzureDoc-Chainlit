@@ -16,7 +16,7 @@ This project is a Chainlit application built using LangChain, incorporating feat
 
 ## Prerequisites
 Before setting up the project, make sure you have the following installed:
-- **Python 3.11.x** (The project is tested on Python 3.11.9)
+- **Python 3.12.x** (The project is tested on Python 3.11.9)
 - **Poetry** (for dependency management)
 
 ### Install Poetry
