@@ -37,3 +37,26 @@ Use Poetry to install the project dependencies:
 ```
 poetry install
 ```
+This command reads the pyproject.toml file to install the necessary dependencies, including LangChain, Chainlit, and Azure integrations.
+
+### 3. Set up Environment Variables
+Create a .env file in the root directory and add the following environment variables:
+```
+AZURE_OPENAI_API_KEY=your_openai_api_key
+AZURE_OPENAI_API_VERSION=2023-03-15-preview
+AZURE_OPENAI_CHAT_DEPLOYMENT_NAME=your_deployment_name
+AZURE_OPENAI_ENDPOINT=https://your-openai-endpoint.azure.com
+AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT=https://your-document-intelligence-endpoint.azure.com
+AZURE_DOCUMENT_INTELLIGENCE_KEY=your_document_intelligence_key
+```
+### 4. Run the App
+Start the Chainlit app with the following command:
+```
+poetry run chainlit run src/main.py
+```
+
+### 5. Upload PDFs and Ask Questions
+- After starting the app, you will be prompted to upload PDF files.
+- Once the files are processed, you can ask complex questions.
+- The app will break the question into simpler sub-questions, search for answers in the documents using both BM25 and semantic search, and provide comprehensive answers with source references.
+
