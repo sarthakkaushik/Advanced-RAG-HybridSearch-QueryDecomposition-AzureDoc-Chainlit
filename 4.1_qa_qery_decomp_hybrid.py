@@ -12,6 +12,8 @@ from langchain_community.document_loaders import AzureAIDocumentIntelligenceLoad
 from langchain.text_splitter import MarkdownHeaderTextSplitter
 from langchain.retrievers import BM25Retriever, EnsembleRetriever
 from langchain.prompts import PromptTemplate
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema import StrOutputParser
 from langchain.chains import LLMChain
 import asyncio
 import chainlit as cl
@@ -167,22 +169,26 @@ async def main(message: cl.Message):
     cb = cl.AsyncLangchainCallbackHandler()
 
     # Decompose the query
-    sub_questions = await decompose_query(message.content)
+    with cl.Step(name="Query Decomposition"):
+        sub_questions = await decompose_query(message.content)
 
     # Answer each sub-question concurrently
-    tasks = [answer_question(chain, q) for q in sub_questions]
-    sub_answers = await asyncio.gather(*tasks)
+    with cl.Step(name="Performing Hybrid-Search"):
+        tasks = [answer_question(chain, q) for q in sub_questions]
+        sub_answers = await asyncio.gather(*tasks)
 
     # Combine sub-answers
-    combined_answer = "\n\n".join([f"Q: {q}\nA: {a['answer']}" for q, a in zip(sub_questions, sub_answers)])
+    with cl.Step(name="Combininig Sub-Answers"):
+        combined_answer = "\n\n".join([f"Q: {q}\nA: {a['answer']}" for q, a in zip(sub_questions, sub_answers)])
 
     # Generate final answer
-    final_answer_prompt = PromptTemplate(
-        template="Based on the following sub-questions and answers, provide a comprehensive answer to the main question: {main_question}\n\nSub-questions and answers:\n{combined_answer}\n\nFinal answer:",
+    with cl.Step(name="Generating Final-Answer"):
+        final_answer_prompt = PromptTemplate(
+        template="Based on the following sub-questions and answers, provide to the point answer to the main question: {main_question}..\n\nSub-questions and answers:\n{combined_answer}\n\nFinal answer:",
         input_variables=["main_question", "combined_answer"]
     )
-    final_answer_chain = LLMChain(llm=llm, prompt=final_answer_prompt)
-    final_answer = await final_answer_chain.arun(main_question=message.content, combined_answer=combined_answer)
+        final_answer_chain = LLMChain(llm=llm, prompt=final_answer_prompt)
+        final_answer = await final_answer_chain.arun(main_question=message.content, combined_answer=combined_answer)
 
     # Collect all source documents
     all_source_documents = []
