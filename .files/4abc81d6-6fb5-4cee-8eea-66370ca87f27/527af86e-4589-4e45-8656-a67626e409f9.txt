@@ -1,0 +1,32 @@
+Source: PDF, Page: unknown
+
+<td colspan="2">For company-leased car</td>
+<td></td>
+<td>For company leased car</td>
+</tr>
+<tr>
+<td>Level</td>
+<td>Fuel</td>
+<td>Maintenance</td>
+<td>. The car should be leased through the lease facility provided by PwC.</td>
+</tr>
+<tr>
+<td rowspan="4"></td>
+<td>Manager/ Principal Consultant</td>
+<td>INR 200,000 per annum</td>
+<td>INR 1,00,000 per annum</td>
+<td>· Declaration for opting car lease should be done at the beginning of the financial year or at the time of joining.</td>
+</tr>
+<tr>
+<td>Senior Manager/ Associate Director</td>
+<td>INR 2,50,000 per annum</td>
+<td>INR 1,25,000 per annum</td>
+<td>· The reimbursement amounts applicable shall be paid after effective date of purchase in the current financial year, till the lease expiry period.</td>
+</tr>
+<tr>
+<td>Director</td>
+<td>INR 3,00,000 per annum</td>
+<td>INR 1,50,000 per annum</td>
+<td>· Car fuel &amp; maintenance expenses would cover fuel expenses, repairs and</td>
+</tr>
+<tr>

@@ -22,7 +22,7 @@ doc_intelligence_endpoint = os.getenv("AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT")
 doc_intelligence_key = os.getenv("AZURE_DOCUMENT_INTELLIGENCE_KEY")
 
 # Initialize the LLM with streaming enabled
-llm = ChatOpenAI(temperature=0, model="gpt-4o", api_key=os.getenv("OPEN_AI_API_KEY"), streaming=True)
+llm = ChatOpenAI(temperature=0, model="gpt-4o-mini", api_key=os.getenv("OPEN_AI_API_KEY"), streaming=True)
 
 embedding_function = AzureOpenAIEmbeddings(
     openai_api_type="azure",
@@ -139,7 +139,7 @@ async def start():
     # Use EnsembleRetriever to combine BM25 and semantic retrievers
     ensemble_retriever = EnsembleRetriever(
         retrievers=[bm25_retriever, semantic_retriever],
-        weights=[0.9, 0.1]
+        weights=[0.2, 0.8]
     )
 
     # Setup conversation memory
@@ -164,52 +164,85 @@ async def start():
     # Store the chain in user session
     cl.user_session.set("chain", chain)
 
+# New prompt template for query complexity detection
+query_complexity_template = """
+Analyze the following user query and determine if it's a simple or complex question.
+A simple question typically asks for straightforward information that can be answered directly.
+A complex question may require multiple steps, comparisons, or in-depth analysis to answer fully.
+
+User query: {question}
+
+Is this a simple or complex question? Respond with either "simple" or "complex".
+"""
+query_complexity_prompt = PromptTemplate(
+    template=query_complexity_template,
+    input_variables=["question"]
+)
+
+# Function to determine query complexity
+async def determine_query_complexity(question: str) -> str:
+    complexity_chain = LLMChain(llm=llm, prompt=query_complexity_prompt)
+    result = await complexity_chain.arun(question=question)
+    return result.strip().lower()
+
+
 @cl.on_message
 async def main(message: cl.Message):
     chain = cl.user_session.get("chain")
 
-    # Step 1: Decompose the query into sub-questions
-    msg = cl.Message(content="Decomposing the query into sub-questions...")
+    # Step 1: Determine query complexity
+    msg = cl.Message(content="Analyzing query complexity...")
     await msg.send()
     
-    sub_questions = await decompose_query(message.content)
-    msg.content = f"Sub-questions: {', '.join(sub_questions)}"
+    query_complexity = await determine_query_complexity(message.content)
+    msg.content = f"Query determined to be: {query_complexity}"
     await msg.update()
 
-    # Step 2: Perform hybrid search on each sub-question
-    msg.content = "Performing hybrid search on sub-questions..."
-    await msg.update()
+    if query_complexity == "simple":
+        # For simple queries, perform direct hybrid search
+        msg.content = "Performing hybrid search for simple query..."
+        await msg.update()
+        
+        result = await answer_question(chain, message.content)
+        final_answer = result['answer']
+        source_documents = result.get('source_documents', [])
+    else:
+        # For complex queries, use the existing decomposition and sub-question approach
+        msg.content = "Decomposing the complex query into sub-questions..."
+        await msg.update()
+        
+        sub_questions = await decompose_query(message.content)
+        msg.content = f"Sub-questions: {', '.join(sub_questions)}"
+        await msg.update()
 
-    tasks = [answer_question(chain, q) for q in sub_questions]
-    sub_answers = await asyncio.gather(*tasks)
+        msg.content = "Performing hybrid search on sub-questions..."
+        await msg.update()
 
-    # Step 3: Combine sub-answers into one response
-    msg.content = "Combining sub-answers..."
-    await msg.update()
+        tasks = [answer_question(chain, q) for q in sub_questions]
+        sub_answers = await asyncio.gather(*tasks)
 
-    combined_answer = "\n\n".join([f"Q: {q}\nA: {a['answer']}" for q, a in zip(sub_questions, sub_answers)])
+        msg.content = "Combining sub-answers..."
+        await msg.update()
 
-    # Step 4: Generate the final answer based on sub-answers
-    msg.content = "Generating the final answer..."
-    await msg.update()
+        combined_answer = "\n\n".join([f"Q: {q}\nA: {a['answer']}" for q, a in zip(sub_questions, sub_answers)])
 
-    final_answer_prompt = PromptTemplate(
-        template="Based on the following sub-questions and answers, provide a comprehensive answer to the main question: {main_question}\n\nSub-questions and answers:\n{combined_answer}\n\nFinal answer:",
-        input_variables=["main_question", "combined_answer"]
-    )
-    final_answer_chain = LLMChain(llm=llm, prompt=final_answer_prompt)
-    final_answer = await final_answer_chain.arun(main_question=message.content, combined_answer=combined_answer)
+        msg.content = "Generating the final answer..."
+        await msg.update()
 
+        final_answer_prompt = PromptTemplate(
+            template="Based on the following sub-questions and answers, provide the direct answer to the main question: {main_question}\n\nSub-questions and answers:\n{combined_answer}\n\nFinal answer:",
+            input_variables=["main_question", "combined_answer"]
+        )
+        final_answer_chain = LLMChain(llm=llm, prompt=final_answer_prompt)
+        final_answer = await final_answer_chain.arun(main_question=message.content, combined_answer=combined_answer)
 
+        source_documents = []
+        for sub_answer in sub_answers:
+            source_documents.extend(sub_answer.get("source_documents", []))
 
-
-    # Step 5: Handle source documents for citation
-    all_source_documents = []
-    for sub_answer in sub_answers:
-        all_source_documents.extend(sub_answer.get("source_documents", []))
-
+    # Handle source documents for citation (this part remains the same for both simple and complex queries)
     unique_sources = {}
-    for doc in all_source_documents:
+    for doc in source_documents:
         source_key = (doc.metadata['source'], doc.metadata['page'])
         if source_key not in unique_sources:
             unique_sources[source_key] = doc
@@ -217,7 +250,7 @@ async def main(message: cl.Message):
     text_elements = []
     if unique_sources:
         for idx, (source_key, doc) in enumerate(unique_sources.items()):
-            source_content = f"Source: {source_key[0]}, Page: {source_key[1]}\n\n{doc.page_content[:500]}..."  # Truncate content for brevity
+            source_content = f"Source: {source_key[0]}, Page: {source_key[1]}\n\n{doc.page_content[:500]}..."
             text_elements.append(cl.Text(content=source_content, name=f"source_{idx+1}", display="side"))
 
         source_citations = [f"[{idx + 1}] {source_key[0]} (p. {source_key[1]})" for idx, source_key in enumerate(unique_sources.keys())]
@@ -228,16 +261,15 @@ async def main(message: cl.Message):
     # Send the final answer with sources
     await cl.Message(content=final_answer, elements=text_elements).send()
 
-        # After sending the final answer, generate suggested questions
-    context = final_answer  # Use the final answer as context for generating suggestions
+    # Generate suggested questions (this part remains unchanged)
+    context = final_answer
     suggested_questions = await generate_suggested_questions(chain, message.content, context)
 
-    # Create suggestion elements for Chainlit
     elements = [
         cl.Text(content=question, title=f"Suggestion {i+1}")
         for i, question in enumerate(suggested_questions)
     ]
-        # Send suggestions to the user
+
     await cl.Message(
         content="Here are some suggested follow-up questions:",
         elements=elements

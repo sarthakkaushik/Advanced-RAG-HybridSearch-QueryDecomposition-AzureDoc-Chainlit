@@ -1,12 +1,11 @@
 import chainlit as cl
-from chainlit.input_widget import TextInput
 
+@cl.step
+async def my_step():
+    current_step = cl.context.current_step
 
-@cl.on_chat_start
-async def start():
-    settings = await cl.ChatSettings(
-        [
-            TextInput(id="AgentName", label="Agent Name", initial="AI"),
-        ]
-    ).send()
-    value = settings["AgentName"]
+    # Override the input of the step
+    current_step.input = "My custom input"
+
+    # Override the output of the step
+    current_step.output = "My custom output"

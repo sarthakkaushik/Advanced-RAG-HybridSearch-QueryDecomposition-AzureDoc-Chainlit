@@ -1,0 +1,29 @@
+Source: PDF, Page: unknown
+
+</tr>
+<tr>
+<td>Level</td>
+<td>Vehicle cost</td>
+</tr>
+<tr>
+<td>Manager/Principal consultant</td>
+<td>Up to INR 18 lakhs or available Allocable RFB limit in the year of purchase</td>
+<td>· For detailed guidelines you can directly reach out to Finance SPOC by raising a request in Service Now Portal. · Available Allocable RFB means</td>
+</tr>
+<tr>
+<td>Senior Manager /Associate Director</td>
+<td>Up to INR 30 lakhs or available Allocable RFB limit in the year of purchase</td>
+<td rowspan="2">35.2% of the CTC less all the declared RFBs like LTA, Telephone expenses, etc. for the first year of Lease multiplied by tenure of lease proposed (3 or 4 years)</td>
+</tr>
+<tr>
+<td>Director</td>
+<td>Up to INR 50 lakhs or available Allocable RFB limit in the year of purchase</td>
+</tr>
+<tr>
+<td>Senior Director and above</td>
+<td>Up to available Allocable RFB limit in the year of purchase</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Children education allowance</td>
